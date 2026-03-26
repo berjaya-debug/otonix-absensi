@@ -4,8 +4,63 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ABsensi Otonix Cibubur</title>
+  
+   <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3a0ca3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AbsenBengkel">
+    <link rel="apple-touch-icon" href="logo-oto.png">
+  
+    <script>
+      let deferredPrompt;
+  
+      window.addEventListener('beforeinstallprompt', (e) => {
+        // Mencegah Chrome memunculkan prompt otomatis bawaan
+        e.preventDefault();
+        // Simpan event agar bisa dipicu nanti
+        deferredPrompt = e;
+        
+        // Tampilkan SweetAlert2 untuk mengajak user install
+        setTimeout(() => {
+          Swal.fire({
+            title: 'Pasang Aplikasi?',
+            text: "Instal aplikasi di HP ! melalui Google Chrome",
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#3a0ca3',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Instal Sekarang',
+            cancelButtonText: 'Nanti saja'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // Jalankan prompt instalasi
+              deferredPrompt.prompt();
+              deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                  console.log('User menginstal aplikasi');
+                }
+                deferredPrompt = null;
+              });
+            }
+          });
+        }, 3000); // Muncul setelah 3 detik halaman dibuka
+      });
+      
+      // Logika pendaftaran Service Worker (Tetap diperlukan)
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('service-worker.js')
+            .then(reg => console.log('SW terdaftar!'))
+            .catch(err => console.error('SW gagal:', err));
+        });
+      }
+    </script>
+
+  
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
   <style>
     :root {
       --primary:   #4b0082;
@@ -744,6 +799,65 @@ function sembunyikanLoading() {
      class="footer-link">
      Pengajuan Cuti
   </a>
+
+   <a href="https://docs.google.com/forms/d/e/1FAIpQLSd_63cbGmBGfHqUL8oq2noSGS6a5kYesobaZnRIPIBn9IOouA/viewform?usp=publish-editor" 
+     target="_blank" 
+     class="footer-link">
+     Pengajuan Cuti
+  </a>
+  <div id="ios-instruction" style="display:none; margin-top:20px; padding:10px; border:1px dashed #3a0ca3; border-radius:10px; font-size:12px; color:#3a0ca3;">
+  📱 <b>Pengguna iPhone:</b> Klik ikon <img src="https://img.icons8.com/ios/20/3a0ca3/export.png"/> (Share) lalu pilih <b>"Add to Home Screen"</b> untuk memasang aplikasi.
+    </div>
+    
+    <script>
+      // Deteksi jika user memakai iPhone dan tidak sedang membuka mode standalone (PWA)
+      const isIos = () => {
+        const userAgent = window.navigator.userAgent.toLowerCase();
+        return /iphone|ipad|ipod/.test(userAgent);
+      }
+      const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+    
+      if (isIos() && !isInStandaloneMode()) {
+        document.getElementById('ios-instruction').style.display = 'block';
+      }
+    </script>
+
+      <div id="install-banner" style="display:none; position:fixed; bottom:20px; left:20px; right:20px; background:#3a0ca3; color:white; padding:15px; border-radius:12px; z-index:9999; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align:center;">
+        <p style="margin:0 0 10px 0; font-size:14px;">Gunakan aplikasi agar absen lebih stabil</p>
+        <button id="btn-install" style="background:#ffd700; color:#1a0835; border:none; padding:8px 20px; border-radius:5px; font-weight:bold; cursor:pointer;">INSTAL SEKARANG</button>
+      </div>
+      
+      <script>
+      let deferredPrompt;
+      const installBanner = document.getElementById('install-banner');
+      const btnInstall = document.getElementById('btn-install');
+      
+      window.addEventListener('beforeinstallprompt', (e) => {
+          // Simpan event agar bisa dipicu lewat tombol kita sendiri
+          e.preventDefault();
+          deferredPrompt = e;
+          // Tampilkan banner buatan kita
+          installBanner.style.display = 'block';
+      });
+      
+      btnInstall.addEventListener('click', (e) => {
+          installBanner.style.display = 'none';
+          if (deferredPrompt) {
+              deferredPrompt.prompt();
+              deferredPrompt.userChoice.then((choiceResult) => {
+                  if (choiceResult.outcome === 'accepted') {
+                      console.log('User menginstal PWA');
+                  }
+                  deferredPrompt = null;
+              });
+          }
+      });
+      
+      // Sembunyikan banner jika aplikasi sudah terinstal (mode standalone)
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+          installBanner.style.display = 'none';
+      }
+      </script>
   
 </body>
 </html>
