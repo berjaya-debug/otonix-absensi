@@ -1,0 +1,21 @@
+{
+  "name": "Absensi Otonix CBB",
+  "short_name": "AbsenBengkel",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f8f5ff",
+  "theme_color": "#3a0ca3",
+  "icons": [
+    {
+      "src": "logo-oto.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo-admin.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
